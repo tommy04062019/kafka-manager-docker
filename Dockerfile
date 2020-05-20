@@ -1,4 +1,3 @@
-
 ### STAGE 1: Build ###
 FROM openjdk:11-jdk AS build
 
@@ -11,8 +10,9 @@ RUN echo "Building Kafka Manager" \
     && wget "https://github.com/yahoo/CMAK/archive/${KAFKA_MANAGER_SOURCE}.tar.gz" -O CMAK-sources.tar.gz \
     && mkdir $KAFKA_MANAGER_SRC_DIR \
     && tar -xzf CMAK-sources.tar.gz -C $KAFKA_MANAGER_SRC_DIR --strip-components=1 \
-    && cd $KAFKA_MANAGER_SRC_DIR \
-    && echo 'scalacOptions ++= Seq("-Xmax-classfile-name", "200")' >> build.sbt
+    && cd $KAFKA_MANAGER_SRC_DIR
+COPY build.sbt $KAFKA_MANAGER_SRC_DIR/build.sbt
+RUN echo 'scalacOptions ++= Seq("-Xmax-classfile-name", "200")' >> $KAFKA_MANAGER_SRC_DIR/build.sbt
 
 ADD robust_build.sh /
 RUN chmod +x robust_build.sh && /robust_build.sh
@@ -28,4 +28,3 @@ VOLUME /kafka-manager/conf
 ENV JAVA_OPTS=-XX:MaxRAMPercentage=80
 ##CMD ["/kafka-manager/bin/cmak", "-Dpidfile.path=/dev/null", "-Dapplication.home=/kafka-manager"]
 ENTRYPOINT ["/kafka-manager/bin/cmak", "-Dpidfile.path=/dev/null", "-Dapplication.home=/kafka-manager", ""]
-
